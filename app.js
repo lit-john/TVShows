@@ -9,7 +9,35 @@ var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
 
+// Let's require the mongodb package
+var mongo = require('mongodb');
+
 var app = express();
+
+// Get the MongoClient Object
+var mongoClient = mongo.MongoClient;
+
+/* 
+ * If I am running this locally then use a local mongod server, otherwise use the one whose
+ * URI is stored in process.env.CUSTOMCONNSTR_MONGODB_URI
+ */
+var MONGODB_URI = process.env.CUSTOMCONNSTR_MONGODB_URI || 'mongodb://localhost:27017/tvshows';
+
+// Connect to the db. The callback function will be passed two arguments: err - which
+// will contain error information, and db - which will contain a connection to the
+// mongodb Database
+mongoClient.connect(MONGODB_URI, function (err, db) {
+  if(!err) {
+    console.log("We are connected");
+    // Store the connection to the mongodb database on the aplication object
+    // under the name db so that I can access in another file
+    app.set('theDBConnection', db);
+  }
+  else {
+    throw err;
+  }
+});
+
 
 // all environments
 app.set('port', process.env.PORT || 3000);
